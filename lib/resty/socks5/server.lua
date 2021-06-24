@@ -241,25 +241,26 @@ end
 local function stringify_addr(atyp, addr)
     if atyp == IPV4 then
         dst = string.format("%d.%d.%d.%d",
-                byte(data, 1),
-                byte(data, 2),
-                byte(data, 3),
-                byte(data, 4)
+                byte(addr, 1),
+                byte(addr, 2),
+                byte(addr, 3),
+                byte(addr, 4)
                 )
     elseif atyp == IPV6 then
         dst = string.format("[%02X%02X:%02X%02X:%02X%02X:%02X%02X:%02X%02X:%02X%02X:%02X%02X:%02X%02X]",
-                byte(dst, 1), byte(dst, 2),
-                byte(dst, 3), byte(dst, 4),
-                byte(dst, 5), byte(dst, 6),
-                byte(dst, 7), byte(dst, 8),
-                byte(dst, 9), byte(dst, 10),
-                byte(dst, 11), byte(dst, 12),
-                byte(dst, 13), byte(dst, 14),
-                byte(dst, 15), byte(dst, 16)
+                byte(addr, 1),  byte(addr, 2),
+                byte(addr, 3),  byte(addr, 4),
+                byte(addr, 5),  byte(addr, 6),
+                byte(addr, 7),  byte(addr, 8),
+                byte(addr, 9),  byte(addr, 10),
+                byte(addr, 11), byte(addr, 12),
+                byte(addr, 13), byte(addr, 14),
+                byte(addr, 15), byte(addr, 16)
                 )
     else
         return addr
     end
+    return dst
 end
 
 
