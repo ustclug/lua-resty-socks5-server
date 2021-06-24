@@ -239,6 +239,7 @@ local function send_auth_status(sock, status)
 end
 
 local function stringify_addr(atyp, addr)
+    local dst
     if atyp == IPV4 then
         dst = string.format("%d.%d.%d.%d",
                 byte(addr, 1),
@@ -374,13 +375,9 @@ function _M.run(timeout, username, password)
 
     local pipe = function(src, dst)
         while true do
-            local data, err, partial = src:receive('*b')
+            local data, err = src:receiveany(1024*1024)
             if not data then
-                if partial then
-                    dst:send(partial)
-                end
-
-                if err ~= 'closed' then
+                if err ~= 'closed' and err ~= 'timeout' then
                     ngx_log(ERR, "pipe receive the src get error: ", err)
                 end
 
@@ -391,7 +388,7 @@ function _M.run(timeout, username, password)
             if err then
                 ngx_log(ERR, "pipe send the dst get error: ", err)
 
-                return
+                break
             end
         end
     end
