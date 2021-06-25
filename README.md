@@ -26,7 +26,10 @@ Make sure your stream_lua_nginx's cosocket support the API `tcpsock:receive('*b'
     server {
         listen 1234;
 
-        content_by_lua_block {
+        set $upstream "";
+        proxy_pass $upstream;
+
+        preread_by_lua_block {
                 local socks5_server = require "lib.resty.socks5.server"
 
                 socks5_server.run(3000)

@@ -352,18 +352,9 @@ function _M.run(timeout, username, password)
         return
     end
 
-    local upsock = ngx.socket.tcp()
-    upsock:settimeout(timeout)
+    local host = stringify_addr(requests.atyp, requests.addr)
+    ngx.var.upstream = host .. ":" .. requests.port
 
-    local addr = stringify_addr(requests.atyp, requests.addr)
-    local ok, err = upsock:connect(addr, requests.port)
-    if err then
-        ngx_log(ERR, "connect request " .. requests.addr ..
-            ":" .. requests.port .. " error: ", err)
-        ngx_exit(ERROR)
-
-        return
-    end
 
     local ok, err = send_replies(downsock, SUCCEEDED)
     if err then
@@ -373,31 +364,6 @@ function _M.run(timeout, username, password)
         return
     end
 
-    local pipe = function(src, dst)
-        while true do
-            local data, err = src:receiveany(1024*1024)
-            if not data then
-                if err ~= 'closed' and err ~= 'timeout' then
-                    ngx_log(ERR, "pipe receive the src get error: ", err)
-                end
-
-                break
-            end
-
-            local ok, err = dst:send(data)
-            if err then
-                ngx_log(ERR, "pipe send the dst get error: ", err)
-
-                break
-            end
-        end
-    end
-
-    local co_updown = ngx.thread.spawn(pipe, upsock, downsock)
-    local co_downup = ngx.thread.spawn(pipe, downsock, upsock)
-
-    ngx.thread.wait(co_updown)
-    ngx.thread.wait(co_downup)
 end
 
 return _M
